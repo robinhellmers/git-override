@@ -2,6 +2,13 @@
 
 main()
 {
+    if [[ "$1 $2" == 'stash pop' ]]
+    then
+        echo "Avoid using 'pop' and instead use 'apply' followed with 'drop'."
+        echo "No action taken."
+        exit 1
+    fi
+
     command git "$@"
 }
 
