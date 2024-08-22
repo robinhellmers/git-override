@@ -9,6 +9,13 @@ main()
         exit 1
     fi
 
+    if [[ "$1 $2" == 'stash apply' ]]
+    then
+        # Always try to recreate the index
+        command git stash apply --index "${@:3}"
+        exit 1
+    fi
+
     command git "$@"
 }
 
