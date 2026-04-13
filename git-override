@@ -2,6 +2,24 @@
 
 main()
 {
+
+    if [[ "$1" = 'merge' ]]
+    then
+        local cmd='git merge-log'
+        local rest_arguments="${@:2}"
+
+        call_with_rest_arguments "$cmd" "$rest_arguments"
+        exit
+    fi
+
+    if [[ "$1 $2" = 'stash ' ]]
+    then
+        local cmd='git stash-separate-staged-unstaged'
+
+        call_with_rest_arguments "$cmd" ''
+        exit
+    fi
+
     if [[ "$1 $2" == 'stash pop' ]]
     then
         echo "Avoid using 'pop' and instead use 'apply' followed with 'drop'."
@@ -11,12 +29,40 @@ main()
 
     if [[ "$1 $2" == 'stash apply' ]]
     then
-        # Always try to recreate the index
-        command git stash apply --index "${@:3}"
-        exit 1
+        local rest_arguments="${@:3}"
+        local cmd='git stash apply --index'
+
+        call_with_rest_arguments "$cmd" "$rest_arguments"
+        exit
+    fi
+
+    if [[ "$1 $2 $3" == 'stash show --stat' ]]
+    then
+        : # Do not use -p, use default command
+    elif [[ "$1 $2" == 'stash show' ]]
+    then
+        local rest_arguments="${@:3}"
+        local cmd='git stash show -p'
+        
+        call_with_rest_arguments "$cmd" "$rest_arguments"
+        exit
     fi
 
     command git "$@"
+}
+
+# Avoid calling with empty 'rest_arguments' which can cause issues
+call_with_rest_arguments()
+{
+    local cmd="command $1"
+    local rest_arguments="$2"
+
+    if [[ -n "$rest_arguments" ]]
+    then
+        $cmd $rest_arguments
+    else
+        $cmd
+    fi
 }
 
 main "$@"
